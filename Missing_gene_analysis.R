@@ -131,30 +131,59 @@ pvalue2 <- (sum(omim_count[,2] < missing_count[2] |
 if(pvalue1 == 0) pvalue1=paste0('<', 1/perms)
 if(pvalue2 == 0) pvalue2=paste0('<', 1/perms)
 
-png(file='OMIM_id_dist.png', height=400, width=650)
-hist(omim_count[,1], breaks=30, xlim=range(c(missing_count[1], omim_count[,1])),
-     main='Distribution of the number of genes with an OMIM disease id',
-     xlab='Number of genes out of 274 with OMIM id')
-abline(v=missing_count[1], col='red', lwd=2)
-legend(197,120, c(paste("Observed count =",missing_count[1]),
-                paste("p-value:", pvalue1)), 
-       col='red', lty=c(1,0), lwd=2)
-abline(v=mean(omim_count[,1]), col='blue', lwd=2)
-legend(185,120, paste("Mean count =", mean(omim_count[,2])), 
-       col='blue', lty=1, lwd=2, xjust=1)
+xrange <- function(perm, obs) {
+# computes the a range of x values centered on the mean and 
+# including the observed
+  expect <- mean(perm)
+  dist_to_extreme <- max(abs(expect-range(c(obs, perm))))
+  xlim <- c(expect-dist_to_extreme, expect+dist_to_extreme)
+}
+
+plot_omim_id_dist <- function(omim_count, missing_count, cex=1) {
+  expect <- mean(omim_count[,1])
+  xlim <- xrange(omim_count[,1], missing_count[1])
+  hist(omim_count[,1], breaks=30, xlim=xlim, cex=cex,
+       main='Distribution of the number of genes with an OMIM disease id',
+       xlab='Number of genes out of 274 with OMIM id',
+       cex.main=cex, cex.axis=cex, cex.lab=cex)
+  abline(v=missing_count[1], col='red', lwd=2)
+  legend(197,120, c(paste("Observed count =",missing_count[1]),
+                    paste("p-value:", pvalue1)), cex=cex, 
+         col='red', lty=c(1,0), lwd=2)
+  abline(v=expect, col='blue', lwd=2)
+  legend(185,120, paste("Mean count =", expect), 
+         col='blue', lty=1, lwd=2, xjust=1, cex=cex)
+}
+
+plot_omim_term_dist <- function(omim_count, missing_count, cex=1) {
+  expect <- mean(omim_count[,2])
+  xlim <- xrange(omim_count[,2], missing_count[2])
+  hist(omim_count[,2], breaks=30, 
+       xlim=xlim, cex=cex, cex.axis=cex, cex.lab=cex, cex.main=cex,
+       main='Distribution of the number of genes associated \nwith OMIM disease terms',
+       xlab='Number of genes out of 274 with OMIM disease term')
+  abline(v=missing_count[2], col='red', lwd=2, cex=cex)
+  legend(34,70, c(paste("Observed count =",missing_count[2]),
+                  paste("p-value:", pvalue2)), 
+         col='red', lty=c(1,0), lwd=2, cex=cex)
+  abline(v=mean(omim_count[,2]), col='blue', lwd=2, cex=cex)
+  legend(63,70, paste("Mean count =", mean(omim_count[,2])), 
+         col='blue', lty=1, lwd=2, cex=cex)
+}
+golden <- 1.618
+
+png(file='OMIM_id_dist.png', height=800, width=800*golden)
+plot_omim_id_dist(omim_count, missing_count, cex=2)
+dev.off()
+pdf(file='OMIM_id_dist.pdf', height=5, width=5*golden)
+plot_omim_id_dist(omim_count, missing_count)
 dev.off()
 
-png(file='OMIM_term_dist.png', height=400, width=650)
-hist(omim_count[,2], breaks=30, xlim=range(c(missing_count[2], omim_count[,2])),
-     main='Distribution of the number of genes associated \nwith OMIM disease terms',
-     xlab='Number of genes out of 274 with OMIM disease term')
-abline(v=missing_count[2], col='red', lwd=2)
-legend(35,60, c(paste("Observed count =",missing_count[2]),
-                 paste("p-value:", pvalue2)), 
-       col='red', lty=c(1,0), lwd=2)
-abline(v=mean(omim_count[,2]), col='blue', lwd=2)
-legend(63,60, paste("Mean count =", mean(omim_count[,2])), 
-       col='blue', lty=1, lwd=2)
+png(file='OMIM_term_dist.png', height=800, width=800*golden)
+plot_omim_term_dist(omim_count, missing_count, cex=2)
+dev.off()
+pdf(file='OMIM_term_dist.pdf', height=5, width=5*golden)
+plot_omim_term_dist(omim_count, missing_count)
 dev.off()
 
 # Mouse functional screen
@@ -197,18 +226,30 @@ for(i in 1:perms) {
 pvalue3 <- sum(perm_pheno_count < missing_pheno_count |
                  perm_pheno_count > 2*mean(perm_pheno_count)-missing_pheno_count)/perms
 
-png(file='Phenotype_count_dist.png', height=400, width=650)
-hist(perm_pheno_count, breaks=30, xlim=range(c(missing_pheno_count, perm_pheno_count)),
-     main='Distribution of the number of genes with an \nassociated mouse phenotype',
-     xlab='Number of genes out of 274 associated with a mouse phenotype')
-abline(v=missing_pheno_count, col='red', lwd=2)
-legend(95,55, c(paste("Observed count =",missing_pheno_count),
-                paste("p-value:", pvalue3)), 
-       col='red', lty=c(1,0), lwd=2)
-abline(v=mean(perm_pheno_count), col='blue', lwd=2)
-legend(133,55, paste("Mean count =", mean(perm_pheno_count)), 
-       col='blue', lty=1, lwd=2, xjust=1)
+plot_phenotype_count_dist <- function(perm_pheno_count, missing_pheno_count, cex=1) {
+  expect <- mean(perm_pheno_count)
+  xlim <- xrange(perm_pheno_count, missing_pheno_count)
+  hist(perm_pheno_count, breaks=30, xlim=range(c(missing_pheno_count, perm_pheno_count)),
+       main='Distribution of the number of genes with an \nassociated mouse phenotype',
+       xlab='Number of genes out of 274 associated with a mouse phenotype',
+       cex=cex, cex.main=cex, cex.lab=cex, cex.axis=cex)
+  abline(v=missing_pheno_count, col='red', lwd=2, cex=cex)
+  legend(xlim[1],65, c(paste("Observed count =", missing_pheno_count),
+                  paste("p-value:", pvalue3)), 
+         cex=cex, col='red', lty=c(1,0), lwd=2, bg='white')
+  abline(v=mean(perm_pheno_count), col='blue', lwd=2, cex=cex)
+  legend(xlim[2],65, paste("Mean count =", mean(perm_pheno_count)), 
+         col='blue', lty=1, lwd=2, xjust=1, cex=cex, bg='white')
+}
+
+png(file='Phenotype_count_dist.png', height=800, width=800*golden)
+plot_phenotype_count_dist(perm_pheno_count, missing_pheno_count, cex=2)
 dev.off()
+
+pdf(file='Phenotype_count_dist.pdf', height=5, width=5*golden)
+plot_phenotype_count_dist(perm_pheno_count, missing_pheno_count)
+dev.off()
+
 
 # For each mouse Phenotype with an associated gene (7,874 of them) we find 
 # the number of genes in the missing group associated with that phenotype and 
