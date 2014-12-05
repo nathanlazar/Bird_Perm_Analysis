@@ -15,7 +15,7 @@ Anole loci: Chr3:15191770-15221921, Chr3:15126986-15152743
 
 Next I generated 1,000 lists of unique genes with the same chromosomal distributions and block sizes as were observed in the genes missing in the bird genome. Each iteration does the following:
 
-1) For each block of genes size n in the missing gene set I randomly choose a seed gene on the given genome. I check that the n genes following this gene are on the same genome in both human and anole and that none of the genes are already on the list of genes for that permutation. This continues until I get a full set of 274 randomly selected genes.
+For each block of genes size n in the missing gene set I randomly choose a seed gene on the given genome. I check that the n genes following this gene are on the same genome in both human and anole and that none of the genes are already on the list of genes for that permutation. This continues until I get a full set of 274 randomly selected genes.
 
 Using this list of 1,000 gene sets, I counted the number of OMIM ids associated with each gene and the number of OMIM disease terms associated with each set of genes. The genes missing in the bird genome do not have a significantly different number of OMIM ids associated with them (two-sided permutation test p-value: 0.42).  However, none of the permutations had a number of OMIM disease terms as extreme as was observed for the genes missing in the bird genome. Therefore a two-sided permutation test p-value is less than .001 indicating that the genes missing in the bird genome have a significantly fewer OMIM disease terms than would be expect by chance when accounting for the chromosomal distribution and block sizes.
 
